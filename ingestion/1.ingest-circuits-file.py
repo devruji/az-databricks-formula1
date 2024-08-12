@@ -210,4 +210,30 @@ circuits_final_df.limit(5).display()
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC
+# MAGIC ### Step5: Write data to Data Lake as Parquet format
+# MAGIC
+# MAGIC - [pyspark.sql.DataFrameWriter](https://spark.apache.org/docs/latest/api/python/reference/pyspark.sql/api/pyspark.sql.DataFrameWriter.html)
+
+# COMMAND ----------
+
+display(dbutils.fs.mounts())
+
+# COMMAND ----------
+
+circuits_final_df.write.mode("overwrite").parquet("/mnt/bossrujiformula1dl/processed/circuits")
+
+# COMMAND ----------
+
+display(dbutils.fs.ls("/mnt/bossrujiformula1dl/processed/circuits"))
+
+# COMMAND ----------
+
+df = spark.read.parquet("/mnt/bossrujiformula1dl/processed/circuits")
+
+df.limit(5).display()
+
+# COMMAND ----------
+
 
