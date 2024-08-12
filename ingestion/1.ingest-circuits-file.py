@@ -7,7 +7,7 @@
 
 # MAGIC %md
 # MAGIC
-# MAGIC #### Step1: Read the CSV file using the spark dataframe reader
+# MAGIC ### Step1: Read the CSV file using the spark dataframe reader
 
 # COMMAND ----------
 
@@ -106,7 +106,7 @@ circuits_df.describe().display()
 
 # MAGIC %md
 # MAGIC
-# MAGIC ### Select only the required columns
+# MAGIC ### Step2: Select only the required columns
 
 # COMMAND ----------
 
@@ -172,6 +172,24 @@ circuits_selected_df = circuits_df.select(
 # COMMAND ----------
 
 display(circuits_selected_df.limit(5))
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC ### Step3: Rename the columns as required
+
+# COMMAND ----------
+
+circuits_renamed_df: DataFrame = (
+    circuits_selected_df.withColumnRenamed("circuitId", "circuit_id")
+    .withColumnRenamed("circuitRef", "circuit_ref")
+    .withColumnRenamed("lat", "latitude")
+    .withColumnRenamed("lng", "longitude")
+    .withColumnRenamed("alt", "altitude")
+)
+
+circuits_renamed_df.limit(5).display()
 
 # COMMAND ----------
 
