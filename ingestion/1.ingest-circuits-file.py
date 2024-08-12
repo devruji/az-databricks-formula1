@@ -193,4 +193,21 @@ circuits_renamed_df.limit(5).display()
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC
+# MAGIC ### Step4: Add ingestion date to the DataFrame
+# MAGIC
+# MAGIC - DataFrame's API -> withColumn()
+# MAGIC - Get current datetime from F.current_timestamp()
+
+# COMMAND ----------
+
+from pyspark.sql.functions import current_timestamp, lit
+
+circuits_final_df = circuits_renamed_df.withColumn("ingestion_date", current_timestamp()).withColumn("env", lit("Production"))
+
+circuits_final_df.limit(5).display()
+
+# COMMAND ----------
+
 
