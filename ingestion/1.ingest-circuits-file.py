@@ -29,7 +29,7 @@ circuits_df: DataFrame = (
     .options(
         header="true", 
     )
-    .csv("dbfs:/mnt/bossrujiformula1dl/raw/circuits.csv")
+    .csv("/mnt/bossrujiformula1dl/raw/circuits.csv")
 )
 
 # COMMAND ----------
