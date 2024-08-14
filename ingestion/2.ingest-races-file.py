@@ -21,54 +21,27 @@ display(dbutils.fs.mounts())
 
 # COMMAND ----------
 
-from pyspark.sql import DataFrame
-
-circuits_df: DataFrame = (
-    spark
-    .read
-    .options(
-        header="true", 
-    )
-    .csv("/mnt/bossrujiformula1dl/raw/circuits.csv")
-)
-
-# COMMAND ----------
-
-circuits_df.printSchema()
-
-# COMMAND ----------
-
-from pyspark.sql import DataFrame
-
-circuits_df: DataFrame = (
-    spark
-    .read
-    .options(
-        header="true", 
-        inferSchema="true"
-    )
-    .csv("dbfs:/mnt/bossrujiformula1dl/raw/circuits.csv")
-)
-
-# COMMAND ----------
-
-circuits_df.printSchema()
-
-# COMMAND ----------
-
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType
 
 # COMMAND ----------
 
-circuits_schema = StructType(fields=[
-    StructField("circuitId", IntegerType(), False),
-    StructField("circuitRef", StringType(), True),
+_df = spark.read.format("csv").option("header", "true").load("/mnt/bossrujiformula1dl/raw/races.csv")
+_df.limit(5).display()
+
+# COMMAND ----------
+
+_df.printSchema()
+
+# COMMAND ----------
+
+races_schema = StructType(fields=[
+    StructField("raceId", IntegerType(), False),
+    StructField("year", IntegerType(), True),
+    StructField("round", IntegerType(), True),
+    StructField("circuitId", IntegerType(), True),
     StructField("name", StringType(), True),
-    StructField("location", StringType(), True),
-    StructField("country", StringType(), True),
-    StructField("lat", DoubleType(), True),
-    StructField("lng", DoubleType(), True),
-    StructField("alt", IntegerType(), True),
+    StructField("date", StringType(), True),
+    StructField("time", StringType(), True),
     StructField("url", StringType(), True),
 ])
 
@@ -76,31 +49,25 @@ circuits_schema = StructType(fields=[
 
 from pyspark.sql import DataFrame
 
-circuits_df: DataFrame = (
+races_df: DataFrame = (
     spark
     .read
     .options(
         header="true", 
     )
-    .schema(circuits_schema)
-    .csv("dbfs:/mnt/bossrujiformula1dl/raw/circuits.csv")
+    .schema(races_schema)
+    .csv("dbfs:/mnt/bossrujiformula1dl/raw/races.csv")
 )
 
-# COMMAND ----------
-
-circuits_df.printSchema()
+races_df.limit(5).display()
 
 # COMMAND ----------
 
-type(circuits_df)
+races_df.printSchema()
 
 # COMMAND ----------
 
-circuits_df.limit(5).display()
-
-# COMMAND ----------
-
-circuits_df.describe().display()
+races_df.describe().display()
 
 # COMMAND ----------
 
@@ -110,68 +77,21 @@ circuits_df.describe().display()
 
 # COMMAND ----------
 
-circuits_selected_df = circuits_df.select(
-    "circuitId", "circuitRef", "name", "location", "country", "lat", "lng", "alt"
-)
-
-# COMMAND ----------
-
-display(circuits_selected_df.limit(5))
-
-# COMMAND ----------
-
-circuits_selected_df = circuits_df.select(
-    circuits_df.circuitId,
-    circuits_df.circuitRef,
-    circuits_df.name,
-    circuits_df.location,
-    circuits_df.country,
-    circuits_df.lat,
-    circuits_df.lng,
-    circuits_df.alt,
-)
-
-# COMMAND ----------
-
-display(circuits_selected_df.limit(5))
-
-# COMMAND ----------
-
-circuits_selected_df = circuits_df.select(
-    circuits_df["circuitId"],
-    circuits_df["circuitRef"],
-    circuits_df["name"],
-    circuits_df["location"],
-    circuits_df["country"],
-    circuits_df["lat"],
-    circuits_df["lng"],
-    circuits_df["alt"],
-)
-
-# COMMAND ----------
-
-display(circuits_selected_df.limit(5))
-
-# COMMAND ----------
-
 from pyspark.sql.functions import col
 
 # COMMAND ----------
 
-circuits_selected_df = circuits_df.select(
+races_selected_df = races_df.select(
+    col("raceId"),
+    col("year"),
+    col("round"),
     col("circuitId"),
-    col("circuitRef"),
     col("name"),
-    col("location"),
-    col("country"),
-    col("lat"),
-    col("lng"),
-    col("alt"),
+    col("date"),
+    col("time")
 )
 
-# COMMAND ----------
-
-display(circuits_selected_df.limit(5))
+races_selected_df.limit(5).display()
 
 # COMMAND ----------
 
@@ -181,32 +101,47 @@ display(circuits_selected_df.limit(5))
 
 # COMMAND ----------
 
-circuits_renamed_df: DataFrame = (
-    circuits_selected_df.withColumnRenamed("circuitId", "circuit_id")
-    .withColumnRenamed("circuitRef", "circuit_ref")
-    .withColumnRenamed("lat", "latitude")
-    .withColumnRenamed("lng", "longitude")
-    .withColumnRenamed("alt", "altitude")
+races_renamed_df: DataFrame = (
+    races_selected_df
+    .withColumnRenamed("raceId", "race_id")
+    .withColumnRenamed("year", "race_year")
+    .withColumnRenamed("circuitId", "circuit_id")
 )
 
-circuits_renamed_df.limit(5).display()
+races_renamed_df.limit(5).display()
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC
-# MAGIC ### Step4: Add ingestion date to the DataFrame
+# MAGIC ### Step4: Add race_timestamp column that transform from (date+time) as race_timestamp
+# MAGIC
+# MAGIC - DataFrame's API -> withColumn()
+# MAGIC - SQL's function -> to_timestmp
+
+# COMMAND ----------
+
+from pyspark.sql.functions import current_timestamp, to_timestamp, concat, lit
+
+# COMMAND ----------
+
+_races_final_df: DataFrame = races_renamed_df.withColumn("race_timestamp", to_timestamp(concat(col("date"), lit(" "), col("time")), "yyyy-MM-dd HH:mm:ss"))
+_races_final_df.limit(5).display()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC ### Step5: Add ingestion date to the DataFrame
 # MAGIC
 # MAGIC - DataFrame's API -> withColumn()
 # MAGIC - Get current datetime from F.current_timestamp()
 
 # COMMAND ----------
 
-from pyspark.sql.functions import current_timestamp, lit
+races_final_df = _races_final_df.withColumn("ingestion_date", current_timestamp()).drop("date", "time")
 
-circuits_final_df = circuits_renamed_df.withColumn("ingestion_date", current_timestamp()).withColumn("env", lit("Production"))
-
-circuits_final_df.limit(5).display()
+races_final_df.limit(5).display()
 
 # COMMAND ----------
 
@@ -222,18 +157,14 @@ display(dbutils.fs.mounts())
 
 # COMMAND ----------
 
-circuits_final_df.write.mode("overwrite").parquet("/mnt/bossrujiformula1dl/processed/circuits")
+races_final_df.write.mode("overwrite").parquet("/mnt/bossrujiformula1dl/processed/races")
 
 # COMMAND ----------
 
-display(dbutils.fs.ls("/mnt/bossrujiformula1dl/processed/circuits"))
+display(dbutils.fs.ls("/mnt/bossrujiformula1dl/processed/races"))
 
 # COMMAND ----------
 
-df = spark.read.parquet("/mnt/bossrujiformula1dl/processed/circuits")
+df = spark.read.parquet("/mnt/bossrujiformula1dl/processed/races")
 
 df.limit(5).display()
-
-# COMMAND ----------
-
-
