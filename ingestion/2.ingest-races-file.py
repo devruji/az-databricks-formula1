@@ -157,7 +157,7 @@ display(dbutils.fs.mounts())
 
 # COMMAND ----------
 
-races_final_df.write.mode("overwrite").parquet("/mnt/bossrujiformula1dl/processed/races")
+races_final_df.write.mode("overwrite").partitionBy("race_year").parquet("/mnt/bossrujiformula1dl/processed/races")
 
 # COMMAND ----------
 
