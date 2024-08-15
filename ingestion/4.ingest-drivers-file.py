@@ -11,6 +11,16 @@
 
 # COMMAND ----------
 
+# DBTITLE 1,initial configuration variables
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# DBTITLE 1,intial common functions
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
 from pyspark.sql.types import StructType, StructField, IntegerType, DoubleType, DateType, StringType
 
 # COMMAND ----------
@@ -39,7 +49,7 @@ drivers_schema: StructType = StructType(
 
 from pyspark.sql import DataFrame
 
-drivers_df: DataFrame = spark.read.format("json").schema(drivers_schema).load("/mnt/bossrujiformula1dl/raw/drivers.json")
+drivers_df: DataFrame = spark.read.format("json").schema(drivers_schema).load(f"{raw_folder_path}/drivers.json")
 drivers_df.limit(5).display()
 
 # COMMAND ----------
@@ -87,8 +97,8 @@ drivers_final_df.limit(5).display()
 
 # COMMAND ----------
 
-drivers_final_df.write.format("parquet").mode("overwrite").save("/mnt/bossrujiformula1dl/processed/drivers")
+drivers_final_df.write.format("parquet").mode("overwrite").save(f"{processed_folder_path}/drivers")
 
 # COMMAND ----------
 
-display(dbutils.fs.ls("/mnt/bossrujiformula1dl/processed/drivers"))
+display(dbutils.fs.ls(f"{processed_folder_path}/drivers"))

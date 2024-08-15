@@ -11,6 +11,16 @@
 
 # COMMAND ----------
 
+# DBTITLE 1,initial configuration variables
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# DBTITLE 1,intial common functions
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
 display(dbutils.fs.mounts())
 
 # COMMAND ----------
@@ -22,15 +32,6 @@ display(dbutils.fs.mounts())
 # COMMAND ----------
 
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType
-
-# COMMAND ----------
-
-_df = spark.read.format("csv").option("header", "true").load("/mnt/bossrujiformula1dl/raw/races.csv")
-_df.limit(5).display()
-
-# COMMAND ----------
-
-_df.printSchema()
 
 # COMMAND ----------
 
@@ -56,7 +57,7 @@ races_df: DataFrame = (
         header="true", 
     )
     .schema(races_schema)
-    .csv("dbfs:/mnt/bossrujiformula1dl/raw/races.csv")
+    .csv(f"{raw_folder_path}/races.csv")
 )
 
 races_df.limit(5).display()
@@ -157,14 +158,14 @@ display(dbutils.fs.mounts())
 
 # COMMAND ----------
 
-races_final_df.write.mode("overwrite").partitionBy("race_year").parquet("/mnt/bossrujiformula1dl/processed/races")
+races_final_df.write.mode("overwrite").partitionBy("race_year").parquet(f"{processed_folder_path}/races")
 
 # COMMAND ----------
 
-display(dbutils.fs.ls("/mnt/bossrujiformula1dl/processed/races"))
+display(dbutils.fs.ls(f"{processed_folder_path}/races"))
 
 # COMMAND ----------
 
-df = spark.read.parquet("/mnt/bossrujiformula1dl/processed/races")
+df = spark.read.parquet(f"{processed_folder_path}/races")
 
 df.limit(5).display()

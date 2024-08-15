@@ -11,6 +11,16 @@
 
 # COMMAND ----------
 
+# DBTITLE 1,initial configuration variables
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# DBTITLE 1,intial common functions
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType
 
 # COMMAND ----------
@@ -37,7 +47,7 @@ pitstops_df: DataFrame = (
     .options(
         multiLine = True,
     )
-    .load("/mnt/bossrujiformula1dl/raw/pit_stops.json")
+    .load(f"{raw_folder_path}/pit_stops.json")
 )
 
 pitstops_df.limit(5).display()
@@ -69,8 +79,8 @@ pitstops_final_df.limit(5).display()
 
 # COMMAND ----------
 
-pitstops_final_df.write.format("parquet").mode("overwrite").save("/mnt/bossrujiformula1dl/processed/pit_stops")
+pitstops_final_df.write.format("parquet").mode("overwrite").save(f"{processed_folder_path}/pit_stops")
 
 # COMMAND ----------
 
-display(dbutils.fs.ls("/mnt/bossrujiformula1dl/processed/pit_stops"))
+display(dbutils.fs.ls(f"{processed_folder_path}/pit_stops"))

@@ -11,6 +11,16 @@
 
 # COMMAND ----------
 
+# DBTITLE 1,initial configuration variables
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# DBTITLE 1,intial common functions
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
 from pyspark.sql.types import StructType, StructField, IntegerType, DoubleType, StringType, FloatType
 
 # COMMAND ----------
@@ -42,7 +52,7 @@ results_schema: StructType = StructType(
 
 from pyspark.sql import DataFrame
 
-results_df: DataFrame = spark.read.format("JSON").schema(results_schema).load("/mnt/bossrujiformula1dl/raw/results.json")
+results_df: DataFrame = spark.read.format("JSON").schema(results_schema).load(f"{raw_folder_path}/results.json")
 results_df.limit(5).display()
 
 # COMMAND ----------
@@ -100,8 +110,8 @@ results_final_df.limit(5).display()
 
 # COMMAND ----------
 
-results_final_df.write.format("parquet").mode("overwrite").partitionBy("race_id").save("/mnt/bossrujiformula1dl/processed/results")
+results_final_df.write.format("parquet").mode("overwrite").partitionBy("race_id").save(f"{processed_folder_path}/results")
 
 # COMMAND ----------
 
-display(dbutils.fs.ls("/mnt/bossrujiformula1dl/processed/results"))
+display(dbutils.fs.ls(f"{processed_folder_path}/results"))

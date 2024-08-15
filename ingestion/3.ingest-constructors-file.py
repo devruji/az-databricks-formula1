@@ -11,6 +11,16 @@
 
 # COMMAND ----------
 
+# DBTITLE 1,initial configuration variables
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# DBTITLE 1,intial common functions
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
 constructors_schema: str = "constructorId INT, constructorRef STRING, name STRING, nationality STRING, url STRING"
 
 # COMMAND ----------
@@ -23,7 +33,7 @@ constructors_schema: str = "constructorId INT, constructorRef STRING, name STRIN
 
 from pyspark.sql import DataFrame
 
-constructors_df: DataFrame = spark.read.schema(constructors_schema).format("json").load("/mnt/bossrujiformula1dl/raw/constructors.json")
+constructors_df: DataFrame = spark.read.schema(constructors_schema).format("json").load(f"{raw_folder_path}/constructors.json")
 constructors_df.limit(5).display()
 
 # COMMAND ----------
@@ -73,16 +83,12 @@ constructors_final_df.limit(5).display()
 
 # MAGIC  %md
 # MAGIC
-# MAGIC  ##### Step 4 - Write the data
+# MAGIC ##### Step 4 - Write the data
 
 # COMMAND ----------
 
-constructors_final_df.write.format("parquet").mode("overwrite").save("/mnt/bossrujiformula1dl/processed/constructors")
+constructors_final_df.write.format("parquet").mode("overwrite").save(f"{processed_folder_path}/constructors")
 
 # COMMAND ----------
 
-display(dbutils.fs.ls("/mnt/bossrujiformula1dl/processed/constructors"))
-
-# COMMAND ----------
-
-
+display(dbutils.fs.ls(f"{processed_folder_path}/constructors"))

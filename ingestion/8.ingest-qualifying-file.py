@@ -11,6 +11,16 @@
 
 # COMMAND ----------
 
+# DBTITLE 1,initial configuration variables
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# DBTITLE 1,intial common functions
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType
 
 # COMMAND ----------
@@ -29,7 +39,7 @@ qualifying_schema: StructType = StructType(fields = [
 
 # COMMAND ----------
 
-display(dbutils.fs.ls("/mnt/bossrujiformula1dl/raw/qualifying"))
+display(dbutils.fs.ls(f"{raw_folder_path}/qualifying"))
 
 # COMMAND ----------
 
@@ -43,7 +53,7 @@ qualifying_df: DataFrame = (
     .options(
         multiLine = True,
     )
-    .load("/mnt/bossrujiformula1dl/raw/qualifying/")
+    .load(f"{raw_folder_path}/qualifying/")
 )
 
 qualifying_df.limit(5).display()
@@ -77,8 +87,8 @@ qualifying_final_df.limit(5).display()
 
 # COMMAND ----------
 
-qualifying_final_df.write.format("parquet").mode("overwrite").save("/mnt/bossrujiformula1dl/processed/qualifying")
+qualifying_final_df.write.format("parquet").mode("overwrite").save(f"{processed_folder_path}/qualifying")
 
 # COMMAND ----------
 
-display(dbutils.fs.ls("/mnt/bossrujiformula1dl/processed/qualifying"))
+display(dbutils.fs.ls(f"{processed_folder_path}/qualifying"))
