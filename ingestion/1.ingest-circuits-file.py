@@ -11,6 +11,14 @@
 
 # COMMAND ----------
 
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+raw_folder_path
+
+# COMMAND ----------
+
 display(dbutils.fs.mounts())
 
 # COMMAND ----------
@@ -29,7 +37,7 @@ circuits_df: DataFrame = (
     .options(
         header="true", 
     )
-    .csv("/mnt/bossrujiformula1dl/raw/circuits.csv")
+    .csv(f"{raw_folder_path}/circuits.csv")
 )
 
 # COMMAND ----------
@@ -47,7 +55,7 @@ circuits_df: DataFrame = (
         header="true", 
         inferSchema="true"
     )
-    .csv("dbfs:/mnt/bossrujiformula1dl/raw/circuits.csv")
+    .csv(f"dbfs:{raw_folder_path}/circuits.csv")
 )
 
 # COMMAND ----------
@@ -83,7 +91,7 @@ circuits_df: DataFrame = (
         header="true", 
     )
     .schema(circuits_schema)
-    .csv("dbfs:/mnt/bossrujiformula1dl/raw/circuits.csv")
+    .csv(f"{raw_folder_path}/circuits.csv")
 )
 
 # COMMAND ----------
@@ -222,18 +230,14 @@ display(dbutils.fs.mounts())
 
 # COMMAND ----------
 
-circuits_final_df.write.mode("overwrite").parquet("/mnt/bossrujiformula1dl/processed/circuits")
+circuits_final_df.write.mode("overwrite").parquet(f"{processed_folder_path}/circuits")
 
 # COMMAND ----------
 
-display(dbutils.fs.ls("/mnt/bossrujiformula1dl/processed/circuits"))
+display(dbutils.fs.ls(f"{processed_folder_path}/circuits"))
 
 # COMMAND ----------
 
-df = spark.read.parquet("/mnt/bossrujiformula1dl/processed/circuits")
+df = spark.read.parquet(f"{processed_folder_path}/circuits")
 
 df.limit(5).display()
-
-# COMMAND ----------
-
-
