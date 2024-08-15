@@ -11,11 +11,13 @@
 
 # COMMAND ----------
 
+# DBTITLE 1,initial configuration variables
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
 
-raw_folder_path
+# DBTITLE 1,intial common functions
+# MAGIC %run "../includes/common_functions"
 
 # COMMAND ----------
 
@@ -26,41 +28,6 @@ display(dbutils.fs.mounts())
 # MAGIC %fs
 # MAGIC
 # MAGIC ls /mnt/bossrujiformula1dl/raw
-
-# COMMAND ----------
-
-from pyspark.sql import DataFrame
-
-circuits_df: DataFrame = (
-    spark
-    .read
-    .options(
-        header="true", 
-    )
-    .csv(f"{raw_folder_path}/circuits.csv")
-)
-
-# COMMAND ----------
-
-circuits_df.printSchema()
-
-# COMMAND ----------
-
-from pyspark.sql import DataFrame
-
-circuits_df: DataFrame = (
-    spark
-    .read
-    .options(
-        header="true", 
-        inferSchema="true"
-    )
-    .csv(f"dbfs:{raw_folder_path}/circuits.csv")
-)
-
-# COMMAND ----------
-
-circuits_df.printSchema()
 
 # COMMAND ----------
 
@@ -118,50 +85,6 @@ circuits_df.describe().display()
 
 # COMMAND ----------
 
-circuits_selected_df = circuits_df.select(
-    "circuitId", "circuitRef", "name", "location", "country", "lat", "lng", "alt"
-)
-
-# COMMAND ----------
-
-display(circuits_selected_df.limit(5))
-
-# COMMAND ----------
-
-circuits_selected_df = circuits_df.select(
-    circuits_df.circuitId,
-    circuits_df.circuitRef,
-    circuits_df.name,
-    circuits_df.location,
-    circuits_df.country,
-    circuits_df.lat,
-    circuits_df.lng,
-    circuits_df.alt,
-)
-
-# COMMAND ----------
-
-display(circuits_selected_df.limit(5))
-
-# COMMAND ----------
-
-circuits_selected_df = circuits_df.select(
-    circuits_df["circuitId"],
-    circuits_df["circuitRef"],
-    circuits_df["name"],
-    circuits_df["location"],
-    circuits_df["country"],
-    circuits_df["lat"],
-    circuits_df["lng"],
-    circuits_df["alt"],
-)
-
-# COMMAND ----------
-
-display(circuits_selected_df.limit(5))
-
-# COMMAND ----------
-
 from pyspark.sql.functions import col
 
 # COMMAND ----------
@@ -190,7 +113,8 @@ display(circuits_selected_df.limit(5))
 # COMMAND ----------
 
 circuits_renamed_df: DataFrame = (
-    circuits_selected_df.withColumnRenamed("circuitId", "circuit_id")
+    circuits_selected_df
+    .withColumnRenamed("circuitId", "circuit_id")
     .withColumnRenamed("circuitRef", "circuit_ref")
     .withColumnRenamed("lat", "latitude")
     .withColumnRenamed("lng", "longitude")
@@ -203,16 +127,13 @@ circuits_renamed_df.limit(5).display()
 
 # MAGIC %md
 # MAGIC
-# MAGIC ### Step4: Add ingestion date to the DataFrame
-# MAGIC
-# MAGIC - DataFrame's API -> withColumn()
-# MAGIC - Get current datetime from F.current_timestamp()
+# MAGIC ### Step4: Add ingestion date to the DataFrame by called `add_ingestion_date()`
 
 # COMMAND ----------
 
 from pyspark.sql.functions import current_timestamp, lit
 
-circuits_final_df = circuits_renamed_df.withColumn("ingestion_date", current_timestamp()).withColumn("env", lit("Production"))
+circuits_final_df = add_ingestion_date(circuits_renamed_df)
 
 circuits_final_df.limit(5).display()
 
@@ -223,10 +144,6 @@ circuits_final_df.limit(5).display()
 # MAGIC ### Step5: Write data to Data Lake as Parquet format
 # MAGIC
 # MAGIC - [pyspark.sql.DataFrameWriter](https://spark.apache.org/docs/latest/api/python/reference/pyspark.sql/api/pyspark.sql.DataFrameWriter.html)
-
-# COMMAND ----------
-
-display(dbutils.fs.mounts())
 
 # COMMAND ----------
 
