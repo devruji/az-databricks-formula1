@@ -5,6 +5,12 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_data_source", "")
+v_data_source = dbutils.widgets.get("p_data_source")
+v_data_source
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC
 # MAGIC ##### Step 1 - Read the JSON file using Spark DataFrameReader API
@@ -66,6 +72,7 @@ pitstops_final_df: DataFrame = (
     pitstops_df
     .withColumnRenamed("raceId", "race_id")
     .withColumnRenamed("driverId", "driver_id")
+    .withColumn("data_source", lit(v_data_source))
     .withColumn("ingestion_date", current_timestamp())
 )
 
@@ -84,3 +91,7 @@ pitstops_final_df.write.format("parquet").mode("overwrite").save(f"{processed_fo
 # COMMAND ----------
 
 display(dbutils.fs.ls(f"{processed_folder_path}/pit_stops"))
+
+# COMMAND ----------
+
+dbutils.notebook.exit("Success")

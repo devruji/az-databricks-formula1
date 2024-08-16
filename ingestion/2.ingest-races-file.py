@@ -5,6 +5,12 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_data_source", "")
+v_data_source = dbutils.widgets.get("p_data_source")
+v_data_source
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC
 # MAGIC ### Step1: Read the CSV file using the spark dataframe reader
@@ -102,11 +108,16 @@ races_selected_df.limit(5).display()
 
 # COMMAND ----------
 
+from pyspark.sql.functions import lit
+
+# COMMAND ----------
+
 races_renamed_df: DataFrame = (
     races_selected_df
     .withColumnRenamed("raceId", "race_id")
     .withColumnRenamed("year", "race_year")
     .withColumnRenamed("circuitId", "circuit_id")
+    .withColumn("data_source", lit(v_data_source))
 )
 
 races_renamed_df.limit(5).display()
@@ -169,3 +180,7 @@ display(dbutils.fs.ls(f"{processed_folder_path}/races"))
 df = spark.read.parquet(f"{processed_folder_path}/races")
 
 df.limit(5).display()
+
+# COMMAND ----------
+
+dbutils.notebook.exit("Success")

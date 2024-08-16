@@ -5,6 +5,12 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_data_source", "")
+v_data_source = dbutils.widgets.get("p_data_source")
+v_data_source
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC
 # MAGIC ##### Step 1 - Read the CSV files using Spark DataFrameReader API
@@ -69,6 +75,7 @@ lap_times_final_df: DataFrame = (
     lap_times_df
     .withColumnRenamed("raceId", "race_id")
     .withColumnRenamed("driverId", "driver_id")
+    .withColumn("data_source", lit(v_data_source))
     .withColumn("ingestion_date", current_timestamp())
 )
 
@@ -87,3 +94,7 @@ lap_times_final_df.write.format("parquet").mode("overwrite").save(f"{processed_f
 # COMMAND ----------
 
 display(dbutils.fs.ls(f"{processed_folder_path}/lap_times"))
+
+# COMMAND ----------
+
+dbutils.notebook.exit("Success")

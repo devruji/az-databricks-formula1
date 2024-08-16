@@ -122,6 +122,10 @@ display(circuits_selected_df.limit(5))
 
 # COMMAND ----------
 
+from pyspark.sql.functions import lit
+
+# COMMAND ----------
+
 circuits_renamed_df: DataFrame = (
     circuits_selected_df
     .withColumnRenamed("circuitId", "circuit_id")
@@ -129,6 +133,7 @@ circuits_renamed_df: DataFrame = (
     .withColumnRenamed("lat", "latitude")
     .withColumnRenamed("lng", "longitude")
     .withColumnRenamed("alt", "altitude")
+    .withColumn("data_source", lit(v_data_source))
 )
 
 circuits_renamed_df.limit(5).display()
@@ -168,3 +173,7 @@ display(dbutils.fs.ls(f"{processed_folder_path}/circuits"))
 df = spark.read.parquet(f"{processed_folder_path}/circuits")
 
 df.limit(5).display()
+
+# COMMAND ----------
+
+dbutils.notebook.exit(value="Success")

@@ -5,6 +5,12 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_data_source", "")
+v_data_source = dbutils.widgets.get("p_data_source")
+v_data_source
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC
 # MAGIC #### Step 1 : Define the Schema and Read the JSON file using Spark DataFrameReader API
@@ -82,6 +88,7 @@ results_renamed_df: DataFrame = (
     .withColumnRenamed("fastestLap", "fastest_lap")
     .withColumnRenamed("fastestLapTime", "fastest_lap_time")
     .withColumnRenamed("fastestLapSpeed", "fastest_lap_Speed")
+    .withColumn("data_source", lit(v_data_source))
     .withColumn("ingestion_date", current_timestamp())
 )
 
@@ -115,3 +122,7 @@ results_final_df.write.format("parquet").mode("overwrite").partitionBy("race_id"
 # COMMAND ----------
 
 display(dbutils.fs.ls(f"{processed_folder_path}/results"))
+
+# COMMAND ----------
+
+dbutils.notebook.exit("Success")

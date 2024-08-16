@@ -5,6 +5,12 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_data_source", "")
+v_data_source = dbutils.widgets.get("p_data_source")
+v_data_source
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC
 # MAGIC ##### Step 1 - Read the JSON files using Spark DataFrameReader API
@@ -92,3 +98,7 @@ qualifying_final_df.write.format("parquet").mode("overwrite").save(f"{processed_
 # COMMAND ----------
 
 display(dbutils.fs.ls(f"{processed_folder_path}/qualifying"))
+
+# COMMAND ----------
+
+dbutils.notebook.exit("Success")
