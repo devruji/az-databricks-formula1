@@ -5,6 +5,16 @@
 
 # COMMAND ----------
 
+dbutils.widgets.help()
+
+# COMMAND ----------
+
+dbutils.widgets.text("p_data_source", "")
+v_data_source = dbutils.widgets.get("p_data_source")
+v_data_source
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC
 # MAGIC ### Step1: Read the CSV file using the spark dataframe reader
