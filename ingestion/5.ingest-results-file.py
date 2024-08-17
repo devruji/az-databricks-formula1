@@ -73,7 +73,7 @@ results_df.printSchema()
 
 # COMMAND ----------
 
-from pyspark.sql.functions import current_timestamp
+from pyspark.sql.functions import current_timestamp, lit
 
 # COMMAND ----------
 
@@ -87,7 +87,7 @@ results_renamed_df: DataFrame = (
     .withColumnRenamed("positionOrder", "position_order")
     .withColumnRenamed("fastestLap", "fastest_lap")
     .withColumnRenamed("fastestLapTime", "fastest_lap_time")
-    .withColumnRenamed("fastestLapSpeed", "fastest_lap_Speed")
+    .withColumnRenamed("fastestLapSpeed", "fastest_lap_speed")
     .withColumn("data_source", lit(v_data_source))
     .withColumn("ingestion_date", current_timestamp())
 )
@@ -122,6 +122,10 @@ results_final_df.write.format("parquet").mode("overwrite").partitionBy("race_id"
 # COMMAND ----------
 
 display(dbutils.fs.ls(f"{processed_folder_path}/results"))
+
+# COMMAND ----------
+
+spark.read.format("parquet").load(f"{processed_folder_path}/results/race_id=1").limit(5).display()
 
 # COMMAND ----------
 

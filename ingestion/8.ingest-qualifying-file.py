@@ -72,7 +72,7 @@ qualifying_df.limit(5).display()
 
 # COMMAND ----------
 
-from pyspark.sql.functions import current_timestamp
+from pyspark.sql.functions import current_timestamp, lit
 
 qualifying_final_df: DataFrame = (
     qualifying_df
@@ -80,6 +80,7 @@ qualifying_final_df: DataFrame = (
     .withColumnRenamed("raceId", "race_id")
     .withColumnRenamed("driverId", "driver_id")
     .withColumnRenamed("constructorId", "constructor_id")
+    .withColumn("data_source", lit(v_data_source))
     .withColumn("ingestion_date", current_timestamp())
 )
 

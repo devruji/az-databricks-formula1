@@ -69,7 +69,7 @@ lap_times_df.limit(5).display()
 
 # COMMAND ----------
 
-from pyspark.sql.functions import current_timestamp
+from pyspark.sql.functions import current_timestamp, lit
 
 lap_times_final_df: DataFrame = (
     lap_times_df

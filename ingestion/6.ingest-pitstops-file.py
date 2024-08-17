@@ -66,7 +66,7 @@ pitstops_df.limit(5).display()
 
 # COMMAND ----------
 
-from pyspark.sql.functions import current_timestamp
+from pyspark.sql.functions import current_timestamp, lit
 
 pitstops_final_df: DataFrame = (
     pitstops_df
